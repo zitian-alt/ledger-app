@@ -1,0 +1,1825 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f3f1ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="记账本">
+<title>记账本 · 每天花了多少，心里有数</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧾</text></svg>">
+<style>
+  :root{
+    --bg:#f3f1ec;
+    --bg-glow:rgba(15,118,110,.07);
+    --surface:#fdfcfa;
+    --surface-2:#f4f1eb;
+    --border:#e3ded4;
+    --ink:#221f1b;
+    --ink-2:#4b463e;
+    --muted:#8a8378;
+    --accent:#0f766e;
+    --accent-strong:#0b5f59;
+    --accent-soft:#e2f1ee;
+    --on-accent:#ffffff;
+    --danger:#b42318;
+    --warn:#b45309;
+    --income:#0f766e;
+    --expense:#221f1b;
+    --shadow:0 1px 2px rgba(34,31,27,.04), 0 10px 28px -16px rgba(34,31,27,.18);
+    --radius:18px;
+    --heat-1:#dcefea;
+    --heat-2:#a9d8cf;
+    --heat-3:#66b7aa;
+    --heat-4:#0f766e;
+    --toast-bg:#24211c;
+    --toast-ink:#f7f3ea;
+    --toast-action:#7dd3c8;
+  }
+  html.dark{
+    color-scheme:dark;
+    --bg:#121110;
+    --bg-glow:rgba(45,212,191,.06);
+    --surface:#1c1a17;
+    --surface-2:#252119;
+    --border:#332e26;
+    --ink:#f2ede4;
+    --ink-2:#cbc3b6;
+    --muted:#928a7d;
+    --accent:#2dd4bf;
+    --accent-strong:#5eead4;
+    --accent-soft:#173a35;
+    --on-accent:#052e2a;
+    --danger:#f97066;
+    --warn:#fbbf24;
+    --income:#2dd4bf;
+    --expense:#f2ede4;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 34px -18px rgba(0,0,0,.75);
+    --heat-1:#1e3b36;
+    --heat-2:#2a5f57;
+    --heat-3:#2f8f82;
+    --heat-4:#5eead4;
+    --toast-bg:#f2ede4;
+    --toast-ink:#1c1a17;
+    --toast-action:#0f766e;
+  }
+  html{color-scheme:light;-webkit-text-size-adjust:100%}
+  *,*::before,*::after{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    -webkit-tap-highlight-color:transparent;
+    background:
+      radial-gradient(1100px 520px at 50% -12%, var(--bg-glow), transparent 62%),
+      var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer;background:none;border:0;padding:0;touch-action:manipulation}
+  h1,h2,h3,p{margin:0}
+  input,select{background:transparent}
+  ::selection{background:var(--accent-soft);color:var(--accent-strong)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  input:focus-visible,select:focus-visible{outline:none}
+  .hidden{display:none!important}
+  .muted{color:var(--muted)}
+  .small{font-size:12px}
+  .app{max-width:920px;margin:0 auto;padding:0 20px 64px}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 0 12px;
+    background:var(--bg);
+    background:color-mix(in srgb, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .logo{
+    width:40px;height:40px;flex:none;border-radius:13px;
+    display:grid;place-items:center;
+    background:linear-gradient(145deg,var(--accent),var(--accent-strong));
+    color:var(--on-accent);font-weight:700;font-size:18px;
+    box-shadow:0 8px 18px -10px rgba(15,118,110,.75);
+  }
+  .brand-text{min-width:0}
+  .brand-text h1{font-size:16px;font-weight:650;letter-spacing:-.01em;line-height:1.3}
+  .brand-text p{font-size:11.5px;color:var(--muted);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .icon-btn{
+    width:38px;height:38px;flex:none;border-radius:11px;
+    display:grid;place-items:center;color:var(--ink-2);
+    border:1px solid transparent;transition:background .15s,border-color .15s,color .15s;
+  }
+  .icon-btn:hover{background:var(--surface-2);border-color:var(--border);color:var(--ink)}
+  .icon-btn:active{transform:scale(.96)}
+
+  .demo-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin:2px 0 12px;padding:10px 14px;
+    border:1px dashed var(--border);border-radius:12px;background:var(--surface);
+    font-size:12px;color:var(--muted);
+  }
+  .demo-banner b{color:var(--ink-2);font-weight:600}
+  .demo-banner button{color:var(--accent);font-weight:600;font-size:12px;white-space:nowrap;padding:2px 4px}
+
+  /* ---------- month ---------- */
+  .monthbar{display:flex;align-items:center;justify-content:center;gap:14px;margin:4px 0 18px}
+  .month-label{min-width:150px;display:flex;flex-direction:column;align-items:center;gap:1px}
+  .month-label strong{font-size:17px;font-weight:650;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  .linklike{font-size:11.5px;color:var(--accent);padding:2px 6px;border-radius:6px;font-weight:550}
+  .linklike:hover{background:var(--accent-soft)}
+
+  /* ---------- cards / summary ---------- */
+  .card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+  }
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .stat{
+    display:flex;flex-direction:column;gap:5px;min-width:0;padding:14px 15px;
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);
+  }
+  .stat-label{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+  .stat-value{
+    font-size:21px;font-weight:680;letter-spacing:-.02em;line-height:1.25;
+    font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .stat-value em{font-style:normal;font-size:13px;font-weight:500;color:var(--muted);margin-right:2px}
+  .stat-value.neg{color:var(--danger)}
+  .stat-value.neg em{color:var(--danger)}
+  .stat .sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sub.up{color:var(--warn)}
+  .sub.down{color:var(--accent)}
+
+  /* ---------- entry ---------- */
+  .entry{padding:18px;margin-bottom:16px}
+  .entry.editing{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft),var(--shadow)}
+  .entry-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+  .seg{display:inline-flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:10px;border:1px solid var(--border)}
+  .seg button{
+    padding:6px 17px;border-radius:8px;font-size:13px;color:var(--muted);font-weight:550;
+    transition:background .15s,color .15s,box-shadow .15s;white-space:nowrap;
+  }
+  .seg button:hover{color:var(--ink-2)}
+  .seg button.active{background:var(--surface);color:var(--ink);font-weight:650;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .entry-state{font-size:12px;color:var(--accent);font-weight:550;text-align:right}
+  .amount-row{display:flex;align-items:center;gap:8px;padding:0 0 10px}
+  .amount-row .cny{font-size:24px;color:var(--muted);font-weight:500;transform:translateY(3px)}
+  .amount-row input{
+    flex:1;min-width:0;border:0;outline:none;background:transparent;padding:0;
+    font-size:42px;font-weight:650;letter-spacing:-.03em;line-height:1.2;
+    font-variant-numeric:tabular-nums;
+  }
+  .amount-row input::placeholder{color:var(--border);font-weight:600}
+  .cats{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 16px}
+  .cat-chip{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 11px;line-height:1;
+    border-radius:10px;border:1px solid var(--border);background:var(--surface-2);
+    font-size:12.5px;color:var(--ink-2);transition:border-color .15s,background .15s,color .15s;
+  }
+  .cat-chip .ico{font-size:14px;line-height:1}
+  .cat-chip:hover{border-color:var(--muted)}
+  .cat-chip.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
+  .entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .field>span{font-size:11.5px;color:var(--muted)}
+  .field input,.field select{
+    height:38px;width:100%;min-width:0;padding:0 10px;border:1px solid var(--border);
+    border-radius:9px;background:var(--surface-2);font-size:13px;
+  }
+  .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .note-field{grid-column:1/-1}
+  .quick-dates{display:flex;align-items:center;gap:5px;margin:-2px 0 14px;flex-wrap:wrap}
+  .qd-label{font-size:11.5px;color:var(--muted);margin-right:2px}
+  .quick-dates button{padding:4px 9px;border-radius:7px;font-size:11.5px;color:var(--muted);border:1px solid transparent}
+  .quick-dates button:hover{background:var(--surface-2)}
+  .quick-dates button.qd-active{color:var(--accent-strong);background:var(--accent-soft);font-weight:600}
+  .primary-btn{
+    width:100%;height:46px;border-radius:11px;background:var(--accent);color:var(--on-accent);
+    font-size:14.5px;font-weight:650;letter-spacing:.01em;
+    box-shadow:0 10px 22px -12px rgba(15,118,110,.8);
+    transition:background .15s,transform .1s;
+  }
+  .primary-btn:hover{background:var(--accent-strong)}
+  .primary-btn:active{transform:translateY(1px)}
+  .ghost-btn{width:100%;height:40px;border-radius:10px;color:var(--muted);font-size:13px;margin-top:8px}
+  .ghost-btn:hover{background:var(--surface-2);color:var(--ink)}
+  .shake{animation:shake .35s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes shake{
+    10%,90%{transform:translateX(-1px)}
+    20%,80%{transform:translateX(2px)}
+    30%,50%,70%{transform:translateX(-4px)}
+    40%,60%{transform:translateX(4px)}
+  }
+
+  /* ---------- budget ---------- */
+  .budget{padding:18px;margin-bottom:16px}
+  .budget-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:13px}
+  .budget-top h2{font-size:14px;font-weight:650;margin-bottom:2px}
+  .budget-input{
+    display:inline-flex;align-items:center;gap:3px;flex:none;
+    padding:5px 8px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);
+    font-size:12px;color:var(--muted);transition:border-color .15s,box-shadow .15s;
+  }
+  .budget-input:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .budget-input input{
+    width:64px;border:0;outline:none;background:transparent;text-align:right;
+    font-size:13px;font-weight:650;color:var(--ink);font-variant-numeric:tabular-nums;
+  }
+  .budget-input .unit{font-size:11px}
+  .bar{height:9px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden}
+  .bar>i{
+    display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-strong));
+    transition:width .45s cubic-bezier(.22,1,.36,1);
+  }
+  .bar.warn>i{background:linear-gradient(90deg,#d97706,#b45309)}
+  .bar.over>i{background:linear-gradient(90deg,#e11d48,#b91c1c)}
+  .budget-meta{display:flex;justify-content:space-between;gap:8px;margin-top:9px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .budget-meta b{color:var(--ink);font-weight:650}
+  .budget-note{margin-top:8px;font-size:12px;color:var(--muted)}
+  .budget-note b{color:var(--ink);font-weight:650}
+  .danger-text{color:var(--danger)!important}
+
+  /* ---------- panels ---------- */
+  .grid-2{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-bottom:16px;align-items:start}
+  .panel{padding:18px}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .panel-head h2{font-size:14px;font-weight:650}
+  .panel-head span{font-size:11.5px;color:var(--muted)}
+
+  .cat-rows{display:flex;flex-direction:column;gap:11px}
+  .cat-row{display:grid;grid-template-columns:88px 1fr 92px;align-items:center;gap:10px}
+  .cat-label{display:flex;align-items:center;gap:7px;min-width:0;font-size:12.5px;color:var(--ink-2)}
+  .cat-icon{width:24px;height:24px;flex:none;border-radius:8px;display:grid;place-items:center;font-size:13px}
+  .cat-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cat-track{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+  .cat-track i{display:block;height:100%;border-radius:99px;transition:width .45s cubic-bezier(.22,1,.36,1)}
+  .cat-num{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;font-variant-numeric:tabular-nums}
+  .cat-num b{font-size:12px;font-weight:600}
+  .cat-num span{font-size:10.5px;color:var(--muted)}
+
+  .cal-dows{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}
+  .cal-dows span{font-size:10.5px;color:var(--muted);text-align:center;padding-bottom:2px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .cal-cell{
+    aspect-ratio:1/1;display:grid;place-items:center;border-radius:9px;
+    font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--ink-2);
+    border:1px solid transparent;transition:transform .12s,border-color .12s;
+  }
+  .cal-cell.empty{visibility:hidden}
+  .cal-cell[disabled]{cursor:default;opacity:.8}
+  .cal-cell.heat-0{background:var(--surface-2)}
+  .cal-cell.heat-1{background:var(--heat-1)}
+  .cal-cell.heat-2{background:var(--heat-2);color:var(--ink)}
+  .cal-cell.heat-3{background:var(--heat-3);color:#073b36}
+  .cal-cell.heat-4{background:var(--heat-4);color:#fff;font-weight:600}
+  html.dark .cal-cell.heat-3,html.dark .cal-cell.heat-4{color:#04211e}
+  .cal-cell.today{box-shadow:inset 0 0 0 1.5px var(--accent);font-weight:650;color:var(--accent-strong)}
+  html.dark .cal-cell.today{color:var(--accent-strong)}
+  button.cal-cell:not([disabled]):hover{transform:scale(1.07);border-color:var(--accent)}
+  .cal-legend{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:11px;font-size:10.5px;color:var(--muted)}
+  .cal-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;background:var(--surface-2)}
+  .cal-legend i:nth-of-type(1){background:var(--surface-2);border:1px solid var(--border)}
+  .cal-legend i.heat-1{background:var(--heat-1)}
+  .cal-legend i.heat-2{background:var(--heat-2)}
+  .cal-legend i.heat-3{background:var(--heat-3)}
+  .cal-legend i.heat-4{background:var(--heat-4)}
+  .empty-state{text-align:center;padding:30px 10px;color:var(--muted);font-size:12.5px}
+  .empty-state .big{font-size:27px;margin-bottom:7px;line-height:1}
+  .empty-state p{margin-top:4px;font-size:11.5px;color:var(--muted)}
+
+  /* ---------- records ---------- */
+  .records{padding:18px}
+  .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .title-wrap{display:flex;align-items:baseline;gap:8px}
+  .title-wrap h2{font-size:15px;font-weight:650}
+  .seg.small button{padding:5px 10px;font-size:12px;border-radius:7px}
+  .day-filter{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    margin:8px 0 2px;padding:8px 11px;border-radius:9px;
+    background:var(--accent-soft);color:var(--accent-strong);font-size:12px;
+  }
+  .day-filter b{font-weight:650}
+  .day-filter button{font-size:12px;font-weight:600;color:var(--accent-strong);padding:2px 4px}
+  .day-group{margin-top:13px}
+  .day-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:4px 2px 6px;font-size:11.5px;color:var(--muted)}
+  .day-label{color:var(--ink-2);font-weight:600;white-space:nowrap}
+  .day-label em{font-style:normal;font-weight:400;color:var(--muted);margin-left:3px}
+  .today-badge{
+    display:inline-block;font-size:10px;line-height:1;padding:3px 5px;border-radius:5px;
+    background:var(--accent-soft);color:var(--accent-strong);margin-left:5px;font-weight:650;vertical-align:1px;
+  }
+  .day-sum{font-variant-numeric:tabular-nums;text-align:right}
+  .rec-row{
+    display:flex;align-items:center;gap:11px;padding:9px 8px;border-radius:11px;
+    cursor:pointer;transition:background .12s;
+  }
+  .rec-row:hover{background:var(--surface-2)}
+  .rec-icon{width:34px;height:34px;flex:none;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-size:16px}
+  .rec-main{flex:1;min-width:0}
+  .rec-title{font-size:13.5px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rec-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rec-amount{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--expense)}
+  .rec-amount.income{color:var(--income)}
+  .rec-del{
+    width:30px;height:30px;flex:none;border-radius:8px;display:grid;place-items:center;
+    color:var(--muted);opacity:0;transition:opacity .12s,background .12s,color .12s;
+  }
+  .rec-row:hover .rec-del,.rec-del:focus-visible{opacity:1}
+  .rec-del:hover{background:rgba(180,35,24,.09);color:var(--danger)}
+  @media (hover:none){.rec-del{opacity:.55}}
+
+  /* ---------- data ---------- */
+  .data-card{margin-top:16px;padding:0 18px}
+  .data-card summary{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:15px 0;font-size:13px;font-weight:550;color:var(--ink-2);
+    cursor:pointer;list-style:none;
+  }
+  .data-card summary::-webkit-details-marker{display:none}
+  .data-card summary::after{content:"+";font-size:17px;color:var(--muted);font-weight:400;line-height:1}
+  .data-card details[open] summary::after{content:"–"}
+  .data-actions{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 12px}
+  .data-actions button{
+    padding:7px 12px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface-2);font-size:12.5px;color:var(--ink-2);
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .data-actions button:hover{border-color:var(--muted);color:var(--ink)}
+  .data-actions button.danger{color:var(--danger);border-color:rgba(180,35,24,.3)}
+  .data-actions button.danger:hover{background:rgba(180,35,24,.07)}
+  .data-card p{padding-bottom:16px;line-height:1.6}
+  .footnote{margin-top:18px;text-align:center;font-size:11px;line-height:1.6;color:var(--muted)}
+
+  /* ---------- cloud sync ---------- */
+  .cloud-card{padding:18px;margin-top:16px}
+  .cloud-note{font-size:12px;color:var(--muted);line-height:1.65;margin:-4px 0 13px}
+  .cloud-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+  .cloud-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .cloud-btn{
+    padding:8px 14px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface-2);font-size:12.5px;font-weight:550;color:var(--ink-2);
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .cloud-btn:hover{border-color:var(--muted);color:var(--ink)}
+  .cloud-btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent);font-weight:650}
+  .cloud-btn.primary:hover{background:var(--accent-strong)}
+  .cloud-status{font-size:11.5px;color:var(--muted);text-align:right}
+  .cloud-status.ok{color:var(--accent)}
+  .cloud-status.bad{color:var(--danger)}
+  .cloud-help{font-size:11.5px;color:var(--muted);line-height:1.65;margin-top:11px}
+  .cloud-help code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;background:var(--surface-2);padding:1px 4px;border-radius:4px}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom, 0px));z-index:50;
+    display:flex;align-items:center;gap:14px;
+    max-width:calc(100vw - 32px);padding:11px 16px;border-radius:12px;
+    background:var(--toast-bg);color:var(--toast-ink);font-size:13px;
+    box-shadow:0 16px 40px rgba(0,0,0,.28);
+    opacity:0;transform:translate(-50%,14px);pointer-events:none;
+    transition:opacity .2s,transform .2s;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .toast button{flex:none;color:var(--toast-action);font-weight:650;font-size:13px;padding:2px 3px}
+
+  @media (max-width:760px){
+    .app{padding:0 14px 56px}
+    .topbar{padding:10px 0}
+    .brand-text p{display:none}
+    .monthbar{margin:0 0 14px}
+    .summary{grid-template-columns:repeat(2,1fr);gap:10px}
+    .stat{padding:12px 13px}
+    .stat-value{font-size:19px}
+    .entry{padding:16px}
+    .amount-row input{font-size:36px}
+    .field input,.field select{font-size:16px}
+    .budget-input input{font-size:16px}
+    .cat-chip{padding:7px 10px;font-size:12px}
+    .grid-2{grid-template-columns:1fr}
+    .panel{padding:16px}
+    .budget{padding:16px}
+    .records{padding:16px}
+    .cat-row{grid-template-columns:92px 1fr 82px}
+    .cat-chip{padding:8px 11px}
+    .rec-row{padding:9px 6px}
+    .data-card{padding:0 16px}
+    .cloud-card{padding:16px}
+    .cloud-form{grid-template-columns:1fr}
+  }
+  @media (hover:none){
+    .rec-del{width:34px;height:34px;opacity:.55}
+  }
+  @media (max-width:390px){
+    .seg button{padding:6px 13px}
+    .qd-label{display:none}
+    .cat-row{grid-template-columns:92px 1fr 78px}
+    .cat-num b{font-size:11.5px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">账</div>
+      <div class="brand-text">
+        <h1>记账本</h1>
+        <p>每天花了多少，心里有数</p>
+      </div>
+    </div>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="切换主题"></button>
+  </header>
+
+  <div class="demo-banner hidden" id="demoBanner">
+    <span><b>示例数据</b> · 刷新页面即清空</span>
+    <button type="button" id="exitDemo">开始记自己的账</button>
+  </div>
+
+  <section class="monthbar" aria-label="月份切换">
+    <button class="icon-btn" id="prevMonth" type="button" aria-label="上个月">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="month-label">
+      <strong id="monthLabel"></strong>
+      <button id="backToday" type="button" class="linklike hidden">回到本月</button>
+    </div>
+    <button class="icon-btn" id="nextMonth" type="button" aria-label="下个月">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </section>
+
+  <section class="summary" id="summary" aria-label="本月概览"></section>
+
+  <section class="card entry" id="entry">
+    <div class="entry-head">
+      <div class="seg" id="typeSeg" role="group" aria-label="收支类型">
+        <button type="button" data-type="expense" class="active">支出</button>
+        <button type="button" data-type="income">收入</button>
+      </div>
+      <span class="entry-state" id="entryState"></span>
+    </div>
+
+    <div class="amount-row">
+      <span class="cny" aria-hidden="true">¥</span>
+      <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="金额">
+    </div>
+
+    <div class="cats" id="catList" role="group" aria-label="分类"></div>
+
+    <div class="entry-grid">
+      <label class="field"><span>日期</span><input type="date" id="date"></label>
+      <label class="field"><span>支付方式</span>
+        <select id="method">
+          <option>微信支付</option>
+          <option>支付宝</option>
+          <option>现金</option>
+          <option>银行卡</option>
+          <option>校园卡</option>
+          <option>其他</option>
+        </select>
+      </label>
+      <label class="field note-field"><span>备注</span><input id="note" maxlength="60" autocomplete="off" placeholder="可选，比如：食堂午饭、打印资料"></label>
+    </div>
+
+    <div class="quick-dates" id="quickDates">
+      <span class="qd-label">快速选择</span>
+      <button type="button" data-offset="0">今天</button>
+      <button type="button" data-offset="1">昨天</button>
+      <button type="button" data-offset="2">前天</button>
+    </div>
+
+    <button class="primary-btn" id="saveBtn" type="button">记下这笔</button>
+    <button class="ghost-btn hidden" id="cancelEdit" type="button">取消修改</button>
+  </section>
+
+  <section class="card budget" id="budgetCard">
+    <div id="budgetBody"></div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card panel" aria-label="支出分类">
+      <div class="panel-head"><h2>支出分类</h2><span id="catStatsTotal"></span></div>
+      <div class="cat-rows" id="catStatsBody"></div>
+    </section>
+    <section class="card panel" aria-label="每日支出">
+      <div id="calendar"></div>
+    </section>
+  </div>
+
+  <section class="card records" aria-label="账单明细">
+    <div class="section-head">
+      <div class="title-wrap"><h2>明细</h2><span class="muted small" id="listCount"></span></div>
+      <div class="seg small" id="filterSeg">
+        <button type="button" data-filter="all" class="active">全部</button>
+        <button type="button" data-filter="expense">支出</button>
+        <button type="button" data-filter="income">收入</button>
+      </div>
+    </div>
+    <div class="day-filter hidden" id="dayFilterRow">
+      <span>仅看 <b id="dayFilterLabel"></b> 的记录</span>
+      <button type="button" id="clearDayFilter">显示全部</button>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <section class="card cloud-card" id="cloudCard" aria-label="GitHub 云同步">
+    <div class="panel-head">
+      <h2>云端同步 · GitHub</h2>
+      <span id="cloudStatus" class="cloud-status">未连接</span>
+    </div>
+    <p class="cloud-note">把账目存进你自己的私有 GitHub 仓库。换手机、清浏览器后重新连接就能找回；Token 只保存在本机。</p>
+    <div class="cloud-form">
+      <label class="field"><span>数据仓库</span><input id="ghRepo" placeholder="用户名/仓库名" autocomplete="off" spellcheck="false"></label>
+      <label class="field"><span>访问令牌</span><input id="ghToken" type="password" placeholder="fine-grained token" autocomplete="off" spellcheck="false"></label>
+      <div class="cloud-actions">
+        <button type="button" class="cloud-btn primary" id="ghConnect">保存并连接</button>
+        <button type="button" class="cloud-btn hidden" id="ghSync">立即同步</button>
+        <button type="button" class="cloud-btn hidden" id="ghDisconnect">断开</button>
+      </div>
+    </div>
+    <p class="cloud-help">需要：一个私有数据仓库 + 只对它开放的 fine-grained token（Contents 读写）。详细步骤见 README 或 <code>GitHub云端同步.md</code>。</p>
+  </section>
+
+  <section class="card data-card" id="dataCard">
+    <details>
+      <summary>数据管理 · 导出与备份</summary>
+      <div class="data-actions">
+        <button type="button" id="exportCsv">导出 CSV</button>
+        <button type="button" id="backupJson">备份 JSON</button>
+        <button type="button" id="restoreBtn">恢复备份</button>
+        <button type="button" id="clearBtn" class="danger">清空账目</button>
+        <input type="file" id="restoreFile" accept="application/json,.json" hidden>
+      </div>
+      <p class="muted small">未开启云同步时，数据只保存在这个浏览器里；开启后会自动存到你的私有 GitHub 仓库。清理浏览器或换设备前，建议先备份 JSON，或确认云同步已经连上。CSV 可以用 Excel / WPS 打开。</p>
+    </details>
+  </section>
+
+  <p class="footnote">未开启云同步时，数据保存在此浏览器 · 换设备或清理浏览器前，先备份 JSON 或开启云同步</p>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span id="toastMsg"></span>
+  <button type="button" id="toastAction" class="hidden">撤销</button>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var LS_KEY = 'dsh.ledger.v1';
+  var GH_KEY = 'dsh.ledger.github.v1';
+  var DEMO = location.hash.indexOf('demo') !== -1;
+
+  var EXPENSE_CATS = [
+    {name:'餐饮', icon:'🍚'},
+    {name:'零食饮品', icon:'🧋'},
+    {name:'交通', icon:'🚌'},
+    {name:'学习', icon:'📚'},
+    {name:'娱乐', icon:'🎮'},
+    {name:'购物', icon:'🛍️'},
+    {name:'住宿', icon:'🏠'},
+    {name:'医疗', icon:'💊'},
+    {name:'通讯', icon:'📱'},
+    {name:'其他', icon:'✨'}
+  ];
+  var INCOME_CATS = [
+    {name:'生活费', icon:'💰'},
+    {name:'奖学金', icon:'🏅'},
+    {name:'兼职', icon:'💼'},
+    {name:'红包', icon:'🧧'},
+    {name:'退款', icon:'↩️'},
+    {name:'其他', icon:'✨'}
+  ];
+  var CAT_COLORS = {
+    '餐饮':'#c2410c','零食饮品':'#b45309','交通':'#0369a1','学习':'#4d7c0f',
+    '娱乐':'#7e22ce','购物':'#be123c','住宿':'#0f766e','医疗':'#0891b2',
+    '通讯':'#475569','其他':'#78716c'
+  };
+  var WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+
+  var CAT_MAP = new Map();
+  EXPENSE_CATS.forEach(function(c){ CAT_MAP.set('expense:' + c.name, c); });
+  INCOME_CATS.forEach(function(c){ CAT_MAP.set('income:' + c.name, c); });
+
+  var TRASH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>';
+  var MOON = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var SUN = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+
+  /* ---------------- utils ---------------- */
+  function pad(n){ return String(n).padStart(2, '0'); }
+  function dateStr(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function monthOf(s){ return s.slice(0, 7); }
+  function currentMonth(){ var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+  function monthLabel(month){ var p = month.split('-'); return p[0] + '年' + Number(p[1]) + '月'; }
+  function shiftMonth(month, delta){
+    var p = month.split('-').map(Number);
+    var d = new Date(p[0], p[1] - 1 + delta, 1);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1);
+  }
+  function daysInMonth(month){
+    var p = month.split('-').map(Number);
+    return new Date(p[0], p[1], 0).getDate();
+  }
+  function parseDate(s){
+    var p = s.split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]);
+  }
+  function money(n){
+    return Number(n).toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function yen(n){
+    var neg = n < -0.005;
+    return '<em>' + (neg ? '-¥' : '¥') + '</em>' + money(Math.abs(n));
+  }
+  function sum(list){
+    return Math.round(list.reduce(function(a, r){ return a + Number(r.amount); }, 0) * 100) / 100;
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function uid(){
+    return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+  function $(id){ return document.getElementById(id); }
+  function parseAmount(v){
+    var n = parseFloat(String(v).replace(/[^\d.]/g, ''));
+    if(!isFinite(n)) return 0;
+    return Math.round(n * 100) / 100;
+  }
+
+  /* ---------------- state ---------------- */
+  function defaultState(){ return {version:1, records:[], budget:1500, theme:'auto', updatedAt:0}; }
+
+  function isValidRecord(r){
+    if(!r || typeof r !== 'object') return false;
+    if(typeof r.id !== 'string' || !r.id) return false;
+    if(r.type !== 'expense' && r.type !== 'income') return false;
+    if(typeof r.category !== 'string' || !r.category) return false;
+    if(!isFinite(Number(r.amount)) || Number(r.amount) <= 0) return false;
+    if(typeof r.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r.date)) return false;
+    var d = parseDate(r.date);
+    return dateStr(d) === r.date;
+  }
+
+  function normalizeState(raw){
+    var s = defaultState();
+    if(!raw || typeof raw !== 'object') return s;
+    if(Array.isArray(raw.records)){
+      s.records = raw.records.filter(isValidRecord).map(function(r){
+        return {
+          id: String(r.id),
+          type: r.type,
+          category: String(r.category),
+          amount: Math.round(Number(r.amount) * 100) / 100,
+          note: typeof r.note === 'string' ? r.note.slice(0, 80) : '',
+          method: typeof r.method === 'string' && r.method ? r.method : '微信支付',
+          date: r.date,
+          ts: isFinite(Number(r.ts)) ? Number(r.ts) : (Date.parse(r.date + 'T12:00:00') || Date.now())
+        };
+      });
+    }
+    var b = Number(raw.budget);
+    if(isFinite(b) && b >= 0) s.budget = Math.round(b * 100) / 100;
+    if(raw.theme === 'dark' || raw.theme === 'light' || raw.theme === 'auto') s.theme = raw.theme;
+    var ua = Number(raw.updatedAt);
+    if(isFinite(ua) && ua > 0) s.updatedAt = ua;
+    return s;
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(LS_KEY);
+      if(!raw) return defaultState();
+      return normalizeState(JSON.parse(raw));
+    }catch(e){
+      console.warn('读取本地数据失败', e);
+      return defaultState();
+    }
+  }
+
+  function persistLocal(){
+    if(DEMO) return;
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    }catch(e){
+      if(!storageWarned){
+        storageWarned = true;
+        toast('浏览器存储不可用，这次记录不会被保存');
+      }
+    }
+  }
+
+  function saveState(skipCloud){
+    state.updatedAt = Date.now();
+    if(DEMO) return;
+    persistLocal();
+    if(!skipCloud) queueCloudSync();
+  }
+
+  function buildDemoState(){
+    var s = defaultState();
+    s.budget = 1500;
+    var today = new Date();
+    var y = today.getFullYear(), m = today.getMonth(), todayDay = today.getDate();
+    function push(date, type, category, amount, note, method){
+      s.records.push({
+        id: 'demo-' + s.records.length + '-' + date,
+        type: type, category: category, amount: amount, note: note,
+        method: method, date: date, ts: Date.now() - s.records.length * 60000
+      });
+    }
+    var cur = [
+      [1,'income','生活费',1600,'十月生活费','银行卡'],
+      [2,'expense','餐饮',13.5,'食堂午饭','校园卡'],
+      [2,'expense','零食饮品',8,'柠檬茶','微信支付'],
+      [3,'expense','学习',36,'专业课教材','支付宝'],
+      [4,'expense','交通',4,'公交','支付宝'],
+      [4,'expense','餐饮',11,'食堂晚饭','校园卡'],
+      [5,'expense','娱乐',30,'电影票','微信支付'],
+      [6,'expense','餐饮',9,'早餐','微信支付'],
+      [8,'expense','购物',49,'洗衣液、纸巾','支付宝'],
+      [9,'expense','餐饮',15,'食堂午饭','校园卡'],
+      [10,'expense','通讯',19,'话费','微信支付'],
+      [12,'expense','零食饮品',12,'奶茶','微信支付'],
+      [13,'expense','餐饮',10.5,'食堂晚饭','校园卡'],
+      [15,'expense','医疗',28,'感冒药','支付宝'],
+      [17,'expense','餐饮',14,'食堂午饭','校园卡'],
+      [18,'expense','学习',25,'打印资料','微信支付'],
+      [20,'expense','娱乐',20,'游戏月卡','微信支付'],
+      [21,'expense','餐饮',12,'食堂午饭','校园卡'],
+      [23,'expense','购物',69,'运动水杯','支付宝'],
+      [24,'expense','零食饮品',7,'咖啡','微信支付'],
+      [26,'income','兼职',300,'家教','微信支付'],
+      [26,'expense','餐饮',16,'食堂晚饭','校园卡'],
+      [27,'expense','交通',2,'公交','支付宝'],
+      [27,'expense','餐饮',13,'食堂午饭','校园卡'],
+      [28,'expense','餐饮',12.5,'食堂午饭','校园卡'],
+      [28,'expense','零食饮品',6,'奶茶','微信支付']
+    ];
+    cur.forEach(function(row){
+      var day = Math.min(row[0], todayDay);
+      push(dateStr(new Date(y, m, day)), row[1], row[2], row[3], row[4], row[5]);
+    });
+    var prev = [
+      [3,'expense','餐饮',12,'食堂午饭','校园卡'],
+      [6,'expense','学习',20,'打印讲义','微信支付'],
+      [9,'expense','零食饮品',15,'奶茶续命','微信支付'],
+      [12,'expense','交通',6,'地铁','支付宝'],
+      [16,'income','生活费',1500,'九月生活费','银行卡'],
+      [18,'expense','娱乐',35,'桌游','微信支付'],
+      [22,'expense','购物',99,'宿舍用品','支付宝'],
+      [25,'expense','餐饮',14,'食堂晚饭','校园卡']
+    ];
+    prev.forEach(function(row){
+      push(dateStr(new Date(y, m - 1, row[0])), row[1], row[2], row[3], row[4], row[5]);
+    });
+    return s;
+  }
+
+  var state = DEMO ? buildDemoState() : loadState();
+  if(location.hash.indexOf('dark') !== -1) state.theme = 'dark';
+
+  var view = {month: currentMonth(), filter: 'all', dayFilter: null};
+  var form = {type: 'expense', category: '餐饮', editingId: null};
+  var catMemory = {expense: '餐饮', income: '生活费'};
+  var storageWarned = false;
+  var toastTimer = null;
+  var toastAction = null;
+  var gh = {owner: '', repo: '', token: '', path: 'ledger.json', sha: null};
+  var cloudBusy = false;
+  var cloudQueued = false;
+  var cloudTimer = null;
+
+  /* ---------------- theme ---------------- */
+  function systemPrefersDark(){
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  function applyTheme(){
+    var dark = state.theme === 'dark' || (state.theme === 'auto' && systemPrefersDark());
+    document.documentElement.classList.toggle('dark', dark);
+    var btn = $('themeBtn');
+    btn.innerHTML = dark ? SUN : MOON;
+    btn.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
+    btn.title = dark ? '切换到浅色模式' : '切换到深色模式';
+  }
+
+  /* ---------------- toast ---------------- */
+  function toast(msg, actionLabel, action){
+    $('toastMsg').textContent = msg;
+    var btn = $('toastAction');
+    toastAction = action || null;
+    if(action){
+      btn.textContent = actionLabel || '撤销';
+      btn.classList.remove('hidden');
+    }else{
+      btn.classList.add('hidden');
+    }
+    $('toast').classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){
+      $('toast').classList.remove('show');
+      toastAction = null;
+    }, 6000);
+  }
+
+  /* ---------------- GitHub cloud sync ---------------- */
+  function loadGhConfig(){
+    try{
+      var raw = localStorage.getItem(GH_KEY);
+      if(!raw) return;
+      var c = JSON.parse(raw);
+      if(c && c.owner && c.repo && c.token){
+        gh.owner = String(c.owner);
+        gh.repo = String(c.repo);
+        gh.token = String(c.token);
+        gh.path = c.path || 'ledger.json';
+        gh.sha = c.sha ? String(c.sha) : null;
+      }
+    }catch(e){ /* 配置损坏时按未连接处理 */ }
+  }
+  function saveGhConfig(){
+    try{
+      localStorage.setItem(GH_KEY, JSON.stringify({owner: gh.owner, repo: gh.repo, token: gh.token, path: gh.path, sha: gh.sha}));
+    }catch(e){}
+  }
+  function hasGh(){ return !!(gh.owner && gh.repo && gh.token); }
+
+  function ghHeaders(extra){
+    var h = {
+      'Authorization': 'Bearer ' + gh.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    if(extra){
+      Object.keys(extra).forEach(function(k){ h[k] = extra[k]; });
+    }
+    return h;
+  }
+  function ghContentUrl(){
+    return 'https://api.github.com/repos/' + encodeURIComponent(gh.owner) + '/' +
+      encodeURIComponent(gh.repo) + '/contents/' +
+      gh.path.split('/').map(encodeURIComponent).join('/');
+  }
+  function ghRequest(url, opts){
+    opts = opts || {};
+    return fetch(url, {
+      method: opts.method || 'GET',
+      headers: ghHeaders(opts.headers),
+      body: opts.body,
+      cache: 'no-store',
+      credentials: 'omit'
+    }).then(function(res){
+      return res.text().then(function(text){
+        var data = null;
+        try{ data = JSON.parse(text); }catch(e){}
+        if(!res.ok){
+          var err = new Error((data && data.message) || ('GitHub 返回 ' + res.status));
+          err.status = res.status;
+          throw err;
+        }
+        return data;
+      });
+    }, function(){
+      var err = new Error('网络连接失败');
+      err.network = true;
+      throw err;
+    });
+  }
+
+  function encodeBase64(text){
+    var bytes = new TextEncoder().encode(text);
+    var binary = '';
+    for(var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }
+  function decodeBase64(text){
+    var binary = atob(String(text).replace(/\s/g, ''));
+    var bytes = new Uint8Array(binary.length);
+    for(var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function cloudData(){
+    return {version: 1, updatedAt: state.updatedAt || 0, budget: state.budget, records: state.records};
+  }
+  function normalizeCloud(data){
+    var n = normalizeState({records: data.records, budget: data.budget, theme: state.theme});
+    return {version: 1, updatedAt: Number(data.updatedAt) || 0, budget: n.budget, records: n.records};
+  }
+  function mergeData(local, cloud){
+    var map = new Map();
+    function add(r){
+      if(!r || !r.id) return;
+      var old = map.get(r.id);
+      if(!old || (Number(r.ts) || 0) > (Number(old.ts) || 0)) map.set(r.id, r);
+    }
+    (local.records || []).forEach(add);
+    (cloud.records || []).forEach(add);
+
+    var localTime = Number(local.updatedAt) || 0;
+    var cloudTime = Number(cloud.updatedAt) || 0;
+    var localCount = (local.records || []).length;
+    var cloudCount = (cloud.records || []).length;
+    var budget;
+    if(localCount === 0 && cloudCount > 0){
+      budget = cloud.budget;
+    }else if(cloudCount === 0 && localCount > 0){
+      budget = local.budget;
+    }else if(localCount === 0 && localTime === 0){
+      budget = cloud.budget;
+    }else if(cloudTime > localTime){
+      budget = cloud.budget;
+    }else if(localTime > cloudTime){
+      budget = local.budget;
+    }else{
+      budget = cloudCount ? cloud.budget : local.budget;
+    }
+    if(typeof budget !== 'number' || !isFinite(budget)) budget = local.budget;
+
+    return {
+      version: 1,
+      updatedAt: Math.max(localTime, cloudTime),
+      budget: budget,
+      records: Array.from(map.values())
+    };
+  }
+  function dataSignature(data){
+    var recs = (data.records || []).map(function(r){
+      return {
+        id: String(r.id), type: r.type, category: r.category, amount: Number(r.amount),
+        note: r.note || '', method: r.method || '', date: r.date, ts: Number(r.ts) || 0
+      };
+    }).sort(function(a, b){ return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0); });
+    return JSON.stringify({budget: Number(data.budget) || 0, records: recs});
+  }
+  function sameData(a, b){ return dataSignature(a) === dataSignature(b); }
+  function applyCloudData(data){
+    state.records = data.records;
+    state.budget = data.budget;
+    state.updatedAt = Number(data.updatedAt) || state.updatedAt || Date.now();
+    persistLocal();
+  }
+
+  function fetchCloudFile(){
+    return ghRequest(ghContentUrl()).then(function(json){
+      if(!json || typeof json.content !== 'string' || !json.sha){
+        throw new Error('云端文件格式不对');
+      }
+      var text = decodeBase64(json.content);
+      var data;
+      try{ data = JSON.parse(text); }catch(e){ throw new Error('云端文件不是有效 JSON'); }
+      if(!data || !Array.isArray(data.records)) throw new Error('云端数据格式不对');
+      return {data: data, sha: json.sha};
+    }, function(err){
+      if(err.status === 404) return {missing: true};
+      throw err;
+    });
+  }
+  function pushCloudFile(data, sha){
+    var body = {
+      message: '记账本同步 ' + new Date().toLocaleString('zh-CN'),
+      content: encodeBase64(JSON.stringify(data))
+    };
+    if(sha) body.sha = sha;
+    return ghRequest(ghContentUrl(), {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    }).then(function(json){
+      return {sha: json && json.content ? json.content.sha : null};
+    });
+  }
+
+  function setCloudStatus(text, kind){
+    var el = $('cloudStatus');
+    if(!el) return;
+    el.textContent = text;
+    el.classList.remove('ok', 'bad');
+    if(kind) el.classList.add(kind);
+  }
+  function timeLabel(){
+    var d = new Date();
+    return pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  function cloudErrorMessage(err){
+    if(err && err.network) return '网络连接失败';
+    if(err && err.status === 401) return 'Token 无效或没有权限';
+    if(err && err.status === 403) return 'GitHub 拒绝访问（权限或频率限制）';
+    if(err && err.status === 404) return '仓库或文件不存在，检查仓库名和 Token';
+    if(err && err.status === 409) return '数据冲突，请稍后重试';
+    return (err && err.message) || '同步失败';
+  }
+  function showCloudError(err, silent){
+    var msg = cloudErrorMessage(err);
+    setCloudStatus(msg, 'bad');
+    if(!silent) toast(msg);
+  }
+
+  function renderCloudUI(){
+    var connected = hasGh();
+    if(connected){
+      $('ghRepo').value = gh.owner + '/' + gh.repo;
+      $('ghToken').placeholder = '已保存，留空表示不修改';
+      $('ghToken').value = '';
+      $('ghSync').classList.remove('hidden');
+      $('ghDisconnect').classList.remove('hidden');
+      $('ghConnect').textContent = '更新连接';
+      if(!$('cloudStatus').textContent || $('cloudStatus').textContent === '未连接'){
+        setCloudStatus('已连接');
+      }
+    }else{
+      $('ghSync').classList.add('hidden');
+      $('ghDisconnect').classList.add('hidden');
+      $('ghConnect').textContent = '保存并连接';
+      setCloudStatus('未连接');
+    }
+  }
+
+  function syncCloudOnce(opts){
+    opts = opts || {};
+    if(!hasGh() || DEMO) return Promise.resolve();
+    if(cloudBusy){
+      cloudQueued = true;
+      return Promise.resolve();
+    }
+    cloudBusy = true;
+    cloudQueued = false;
+    if(!opts.silent) setCloudStatus('同步中…');
+
+    var local = cloudData();
+    return fetchCloudFile().then(function(result){
+      if(result.missing){
+        return pushCloudFile(local, null).then(function(res){
+          gh.sha = res.sha;
+          saveGhConfig();
+          setCloudStatus('已连接 · 已上传 ' + local.records.length + ' 条', 'ok');
+          if(opts.notify) toast('已连接云端，本机数据已上传');
+        });
+      }
+
+      var cloud = normalizeCloud(result.data);
+      var remoteChanged = !gh.sha || gh.sha !== result.sha;
+      var merged;
+      var cloudChanged;
+
+      if(remoteChanged){
+        merged = mergeData(local, cloud);
+        cloudChanged = !sameData(merged, cloud);
+        if(!sameData(merged, local)){
+          applyCloudData(merged);
+          renderAll();
+        }
+      }else{
+        merged = local;
+        cloudChanged = !sameData(local, cloud);
+      }
+      gh.sha = result.sha;
+
+      var push = cloudChanged
+        ? pushCloudFile(merged, gh.sha).then(function(res){ gh.sha = res.sha; })
+        : Promise.resolve();
+
+      return push.then(function(){
+        saveGhConfig();
+        setCloudStatus('已同步 · ' + timeLabel(), 'ok');
+        if(opts.notify) toast('同步完成，共 ' + merged.records.length + ' 条记录');
+      });
+    }).catch(function(err){
+      if(err.status === 409 && !opts.retried){
+        var retry = {};
+        Object.keys(opts).forEach(function(k){ retry[k] = opts[k]; });
+        retry.retried = true;
+        cloudBusy = false;
+        return syncCloudOnce(retry);
+      }
+      showCloudError(err, opts.silent);
+    }).then(function(){
+      cloudBusy = false;
+      if(cloudQueued){
+        cloudQueued = false;
+        queueCloudSync(400);
+      }
+    });
+  }
+
+  function queueCloudSync(delay){
+    if(!hasGh() || DEMO) return;
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(function(){
+      syncCloudOnce({silent: true});
+    }, delay || 1200);
+  }
+
+  /* ---------------- render ---------------- */
+  function recordsInMonth(){
+    return state.records.filter(function(r){ return r.date.indexOf(view.month) === 0; });
+  }
+  function catsFor(type){ return type === 'expense' ? EXPENSE_CATS : INCOME_CATS; }
+  function catOf(r){
+    return CAT_MAP.get(r.type + ':' + r.category) || {name: r.category, icon: '✨'};
+  }
+
+  function renderMonthBar(){
+    $('monthLabel').textContent = monthLabel(view.month);
+    $('backToday').classList.toggle('hidden', view.month === currentMonth());
+  }
+
+  function renderSummary(){
+    var recs = recordsInMonth();
+    var expList = recs.filter(function(r){ return r.type === 'expense'; });
+    var incList = recs.filter(function(r){ return r.type === 'income'; });
+    var exp = sum(expList);
+    var inc = sum(incList);
+    var bal = Math.round((inc - exp) * 100) / 100;
+    var dim = daysInMonth(view.month);
+    var isCur = view.month === currentMonth();
+    var scope = isCur ? '本月' : '当月';
+    var daysPassed = isCur ? Math.min(new Date().getDate(), dim) : dim;
+    var avg = exp / Math.max(1, daysPassed);
+
+    var prevMonth = shiftMonth(view.month, -1);
+    var prevExp = sum(state.records.filter(function(r){
+      return r.type === 'expense' && r.date.indexOf(prevMonth) === 0;
+    }));
+    var cmp = '<span class="sub">上月无支出</span>';
+    if(prevExp > 0){
+      var diff = (exp - prevExp) / prevExp * 100;
+      var dir = diff > 0.5 ? 'up' : (diff < -0.5 ? 'down' : '');
+      var arrow = diff > 0.5 ? '↑' : (diff < -0.5 ? '↓' : '·');
+      cmp = '<span class="sub ' + dir + '">' + arrow + ' ' + Math.abs(diff).toFixed(0) + '% 较上月</span>';
+    }
+
+    $('summary').innerHTML =
+      '<div class="stat"><span class="stat-label">' + scope + '支出</span><span class="stat-value">' + yen(exp) + '</span>' + cmp + '</div>' +
+      '<div class="stat"><span class="stat-label">' + scope + '收入</span><span class="stat-value">' + yen(inc) + '</span><span class="sub">' + (incList.length ? '共 ' + incList.length + ' 笔' : '还没有收入记录') + '</span></div>' +
+      '<div class="stat"><span class="stat-label">' + scope + '结余</span><span class="stat-value' + (bal < 0 ? ' neg' : '') + '">' + yen(bal) + '</span><span class="sub">' + (expList.length ? expList.length + ' 笔支出' : '还没有支出记录') + '</span></div>' +
+      '<div class="stat"><span class="stat-label">日均支出</span><span class="stat-value">' + yen(avg) + '</span><span class="sub">按 ' + daysPassed + ' 天计算</span></div>';
+  }
+
+  function budgetInput(val){
+    return '<label class="budget-input" title="点击修改每月预算"><span>¥</span>' +
+      '<input id="budgetInput" inputmode="decimal" autocomplete="off" placeholder="0" value="' + val + '" aria-label="每月预算">' +
+      '<span class="unit">/月</span></label>';
+  }
+
+  function renderBudget(){
+    var spent = sum(state.records.filter(function(r){
+      return r.type === 'expense' && r.date.indexOf(view.month) === 0;
+    }));
+    var budget = Number(state.budget) || 0;
+    var budgetStr = budget ? (budget % 1 === 0 ? String(budget) : budget.toFixed(2)) : '';
+    var html;
+
+    if(budget > 0){
+      var pct = spent / budget * 100;
+      var remain = Math.round((budget - spent) * 100) / 100;
+      var cls = pct >= 100 ? 'over' : (pct >= 85 ? 'warn' : '');
+      var daysLeft = view.month === currentMonth()
+        ? Math.max(1, daysInMonth(view.month) - new Date().getDate() + 1)
+        : 0;
+      var perDay = remain > 0 && daysLeft > 0 ? remain / daysLeft : 0;
+      var note;
+      if(remain < 0){
+        note = '<span class="danger-text">已超出预算 ¥' + money(-remain) + '，接下来省着点花。</span>';
+      }else if(daysLeft > 0){
+        note = '还剩 <b>' + daysLeft + '</b> 天，每天可用 <b>¥' + money(perDay) + '</b>';
+      }else{
+        note = '本月预算还剩 <b>¥' + money(remain) + '</b>';
+      }
+      html =
+        '<div class="budget-top">' +
+          '<div><h2>月预算</h2><p class="muted small">' + monthLabel(view.month) + ' · 已用 ' + Math.round(pct) + '%</p></div>' +
+          budgetInput(budgetStr) +
+        '</div>' +
+        '<div class="bar ' + cls + '"><i style="width:' + Math.min(100, Math.max(0, pct)) + '%"></i></div>' +
+        '<div class="budget-meta"><span>已花 <b>¥' + money(spent) + '</b></span><span>' +
+          (remain >= 0 ? '剩余 <b>¥' + money(remain) + '</b>' : '<b class="danger-text">超支 ¥' + money(-remain) + '</b>') +
+        '</span></div>' +
+        '<p class="budget-note">' + note + '</p>';
+    }else{
+      html =
+        '<div class="budget-top"><div><h2>月预算</h2><p class="muted small">还没有设置</p></div>' + budgetInput('') + '</div>' +
+        '<div class="bar"><i style="width:0%"></i></div>' +
+        '<p class="budget-note">设一个月预算，帮你盯住花销。这个月已花 <b>¥' + money(spent) + '</b>。</p>';
+    }
+    $('budgetBody').innerHTML = html;
+  }
+
+  function renderCatStats(){
+    var recs = state.records.filter(function(r){
+      return r.type === 'expense' && r.date.indexOf(view.month) === 0;
+    });
+    var total = sum(recs);
+    var map = new Map();
+    recs.forEach(function(r){ map.set(r.category, (map.get(r.category) || 0) + r.amount); });
+    var rows = Array.from(map.entries()).sort(function(a, b){ return b[1] - a[1]; });
+
+    if(!rows.length){
+      $('catStatsTotal').textContent = '';
+      $('catStatsBody').innerHTML = '<div class="empty-state"><div class="big">📊</div>这个月还没有支出记录</div>';
+      return;
+    }
+    $('catStatsTotal').textContent = '共 ¥' + money(total);
+    $('catStatsBody').innerHTML = rows.map(function(row){
+      var name = row[0], val = row[1];
+      var cat = CAT_MAP.get('expense:' + name) || {icon: '✨'};
+      var pct = val / total * 100;
+      var color = CAT_COLORS[name] || '#64748b';
+      return '<div class="cat-row">' +
+        '<div class="cat-label"><span class="cat-icon" style="background:' + color + '20">' + cat.icon + '</span><span class="cat-name">' + esc(name) + '</span></div>' +
+        '<div class="cat-track"><i style="width:' + Math.max(2, pct).toFixed(1) + '%;background:' + color + '"></i></div>' +
+        '<div class="cat-num"><b>¥' + money(val) + '</b><span>' + Math.round(pct) + '%</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderCalendar(){
+    var p = view.month.split('-').map(Number);
+    var y = p[0], m = p[1];
+    var dim = new Date(y, m, 0).getDate();
+    var daily = {};
+    state.records.forEach(function(r){
+      if(r.type === 'expense' && r.date.indexOf(view.month) === 0){
+        daily[r.date] = (daily[r.date] || 0) + r.amount;
+      }
+    });
+    var vals = Object.keys(daily).map(function(k){ return daily[k]; });
+    var max = vals.length ? Math.max.apply(null, vals) : 0;
+    var offset = (new Date(y, m - 1, 1).getDay() + 6) % 7;
+    var today = dateStr(new Date());
+    var cells = '';
+    for(var i = 0; i < offset; i++) cells += '<span class="cal-cell empty"></span>';
+    for(var d = 1; d <= dim; d++){
+      var ds = y + '-' + pad(m) + '-' + pad(d);
+      var amt = daily[ds] || 0;
+      var level = 0;
+      if(amt > 0 && max > 0) level = Math.min(4, Math.max(1, Math.ceil(amt / max * 4)));
+      var isToday = ds === today;
+      var label = m + '月' + d + '日' + (amt ? ' · 支出 ¥' + money(amt) : ' · 无支出');
+      cells += '<button type="button" class="cal-cell heat-' + level + (isToday ? ' today' : '') + '" data-date="' + ds + '" title="' + label + '" aria-label="' + label + '"' + (amt ? '' : ' disabled') + '>' + d + '</button>';
+    }
+    $('calendar').innerHTML =
+      '<div class="panel-head"><h2>每日支出</h2><span>点击日期查看当天</span></div>' +
+      '<div class="cal-dows">' + ['一','二','三','四','五','六','日'].map(function(x){ return '<span>' + x + '</span>'; }).join('') + '</div>' +
+      '<div class="cal-grid">' + cells + '</div>' +
+      '<div class="cal-legend"><span>少</span><i></i><i class="heat-1"></i><i class="heat-2"></i><i class="heat-3"></i><i class="heat-4"></i><span>多</span></div>';
+  }
+
+  function renderList(){
+    var monthRecs = recordsInMonth();
+    var recs = monthRecs.slice().sort(function(a, b){
+      return b.date.localeCompare(a.date) || b.ts - a.ts;
+    });
+    if(view.filter !== 'all'){
+      recs = recs.filter(function(r){ return r.type === view.filter; });
+    }
+    if(view.dayFilter){
+      recs = recs.filter(function(r){ return r.date === view.dayFilter; });
+    }
+    $('listCount').textContent = recs.length ? '共 ' + recs.length + ' 笔' : '';
+
+    var html = '';
+    if(!recs.length){
+      var msg, hint;
+      if(view.dayFilter){ msg = '这一天没有记录'; hint = '换个日期看看，或者直接记一笔'; }
+      else if(monthRecs.length){ msg = '没有符合条件的记录'; hint = '换个筛选条件试试'; }
+      else { msg = '这个月还没有记录'; hint = '在上面的记账框里记下第一笔吧'; }
+      html = '<div class="empty-state"><div class="big">🧾</div><div>' + msg + '</div><p>' + hint + '</p></div>';
+    }else{
+      var groups = [];
+      recs.forEach(function(r){
+        var g = groups[groups.length - 1];
+        if(!g || g.date !== r.date){ g = {date: r.date, items: []}; groups.push(g); }
+        g.items.push(r);
+      });
+      html = groups.map(function(g){
+        var d = parseDate(g.date);
+        var todayS = dateStr(new Date());
+        var yesterdayS = dateStr(new Date(Date.now() - 86400000));
+        var dayAll = state.records.filter(function(r){ return r.date === g.date; });
+        var dExp = sum(dayAll.filter(function(r){ return r.type === 'expense'; }));
+        var dInc = sum(dayAll.filter(function(r){ return r.type === 'income'; }));
+        var sums = [];
+        if(dExp) sums.push('支 ¥' + money(dExp));
+        if(dInc) sums.push('收 ¥' + money(dInc));
+        var rowHtml = g.items.map(function(r){
+          var cat = catOf(r);
+          var sub = [r.note, r.method].filter(Boolean).map(esc).join(' · ');
+          return '<div class="rec-row" data-id="' + esc(r.id) + '" title="点击修改">' +
+            '<span class="rec-icon">' + cat.icon + '</span>' +
+            '<div class="rec-main"><div class="rec-title">' + esc(r.category) + '</div><div class="rec-sub">' + (sub || '&nbsp;') + '</div></div>' +
+            '<span class="rec-amount ' + r.type + '">' + (r.type === 'income' ? '+' : '-') + '¥' + money(r.amount) + '</span>' +
+            '<button type="button" class="rec-del" data-id="' + esc(r.id) + '" title="删除" aria-label="删除这笔">' + TRASH + '</button>' +
+          '</div>';
+        }).join('');
+        return '<div class="day-group">' +
+          '<div class="day-head">' +
+            '<span class="day-label">' + (d.getMonth() + 1) + '月' + d.getDate() + '日<em>' + WEEKDAYS[d.getDay()] + '</em>' +
+              (g.date === todayS ? '<b class="today-badge">今天</b>' : (g.date === yesterdayS ? '<b class="today-badge">昨天</b>' : '')) +
+            '</span>' +
+            '<span class="day-sum">' + sums.join(' · ') + '</span>' +
+          '</div>' + rowHtml +
+        '</div>';
+      }).join('');
+    }
+    $('list').innerHTML = html;
+    Array.prototype.forEach.call($('filterSeg').querySelectorAll('button'), function(b){
+      b.classList.toggle('active', b.dataset.filter === view.filter);
+    });
+  }
+
+  function renderDayFilter(){
+    var row = $('dayFilterRow');
+    if(!view.dayFilter){ row.classList.add('hidden'); return; }
+    var d = parseDate(view.dayFilter);
+    $('dayFilterLabel').textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    row.classList.remove('hidden');
+  }
+
+  function renderType(){
+    Array.prototype.forEach.call(document.querySelectorAll('#typeSeg button'), function(b){
+      b.classList.toggle('active', b.dataset.type === form.type);
+    });
+    var list = catsFor(form.type);
+    if(!form.category){
+      form.category = (catMemory[form.type] && list.some(function(c){ return c.name === catMemory[form.type]; }))
+        ? catMemory[form.type]
+        : list[0].name;
+    }
+    renderCats();
+  }
+
+  function renderCats(){
+    var list = catsFor(form.type);
+    var html = list.map(function(c){
+      return '<button type="button" class="cat-chip' + (c.name === form.category ? ' active' : '') + '" data-cat="' + esc(c.name) + '">' +
+        '<span class="ico">' + c.icon + '</span>' + esc(c.name) + '</button>';
+    }).join('');
+    if(!list.some(function(c){ return c.name === form.category; })){
+      html += '<button type="button" class="cat-chip active" data-cat="' + esc(form.category) + '"><span class="ico">✨</span>' + esc(form.category) + '</button>';
+    }
+    $('catList').innerHTML = html;
+  }
+
+  function renderQuickDates(){
+    var today = dateStr(new Date());
+    var current = $('date').value || today;
+    Array.prototype.forEach.call($('quickDates').querySelectorAll('button'), function(b){
+      var d = new Date();
+      d.setDate(d.getDate() - Number(b.dataset.offset));
+      b.classList.toggle('qd-active', dateStr(d) === current);
+    });
+  }
+
+  function renderAll(){
+    renderMonthBar();
+    renderSummary();
+    renderBudget();
+    renderCatStats();
+    renderCalendar();
+    renderList();
+    renderDayFilter();
+    renderType();
+    renderQuickDates();
+  }
+
+  /* ---------------- actions ---------------- */
+  function invalidAmount(msg){
+    toast(msg);
+    var el = $('amount');
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+    el.focus();
+  }
+
+  function saveEntry(){
+    var amount = parseAmount($('amount').value);
+    if(!(amount > 0)){ invalidAmount('请输入有效金额'); return; }
+    if(amount > 1000000){ invalidAmount('金额太大了'); return; }
+    var dateVal = $('date').value;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateVal)){ toast('请选择有效日期'); return; }
+
+    var rec = {
+      type: form.type,
+      category: form.category,
+      amount: amount,
+      note: $('note').value.trim().slice(0, 60),
+      method: $('method').value || '微信支付',
+      date: dateVal
+    };
+
+    if(form.editingId){
+      var old = state.records.find(function(r){ return r.id === form.editingId; });
+      if(!old){ finishEdit(); return; }
+      Object.assign(old, rec);
+      old.ts = Date.now();
+      saveState();
+      view.month = monthOf(dateVal);
+      view.dayFilter = null;
+      finishEdit();
+      renderAll();
+      toast('已保存修改');
+    }else{
+      rec.id = uid();
+      rec.ts = Date.now();
+      state.records.push(rec);
+      saveState();
+      view.month = monthOf(dateVal);
+      view.dayFilter = null;
+      $('amount').value = '';
+      $('note').value = '';
+      renderAll();
+      toast('已记一笔 · ' + rec.category + ' ¥' + money(rec.amount), '撤销', function(){
+        state.records = state.records.filter(function(r){ return r.id !== rec.id; });
+        saveState();
+        renderAll();
+        toast('已撤销');
+      });
+      if(window.matchMedia && window.matchMedia('(pointer: fine)').matches){
+        $('amount').focus();
+      }
+    }
+  }
+
+  function startEdit(id){
+    var r = state.records.find(function(x){ return x.id === id; });
+    if(!r) return;
+    form.editingId = id;
+    form.type = r.type;
+    form.category = r.category;
+    catMemory[r.type] = r.category;
+    $('amount').value = r.amount % 1 === 0 ? String(r.amount) : r.amount.toFixed(2);
+    $('date').value = r.date;
+    $('note').value = r.note || '';
+    $('method').value = r.method || '微信支付';
+    $('saveBtn').textContent = '保存修改';
+    $('cancelEdit').classList.remove('hidden');
+    $('entryState').textContent = '正在修改一笔记录';
+    $('entry').classList.add('editing');
+    renderType();
+    renderQuickDates();
+    $('entry').scrollIntoView({behavior: 'smooth', block: 'center'});
+    setTimeout(function(){
+      $('amount').focus({preventScroll: true});
+      $('amount').select();
+    }, 80);
+  }
+
+  function finishEdit(){
+    form.editingId = null;
+    $('saveBtn').textContent = '记下这笔';
+    $('cancelEdit').classList.add('hidden');
+    $('entryState').textContent = '';
+    $('entry').classList.remove('editing');
+    $('amount').value = '';
+    $('note').value = '';
+  }
+
+  function cancelEdit(){
+    finishEdit();
+    renderQuickDates();
+    $('amount').blur();
+  }
+
+  function deleteRecord(id){
+    var idx = state.records.findIndex(function(r){ return r.id === id; });
+    if(idx === -1) return;
+    var removed = state.records.splice(idx, 1)[0];
+    saveState();
+    if(form.editingId === id) finishEdit();
+    renderAll();
+    toast('已删除 · ' + removed.category + ' ¥' + money(removed.amount), '撤销', function(){
+      state.records.splice(Math.min(idx, state.records.length), 0, removed);
+      saveState();
+      renderAll();
+      toast('已恢复');
+    });
+  }
+
+  function shiftView(delta){
+    view.month = shiftMonth(view.month, delta);
+    view.dayFilter = null;
+    if(form.editingId) cancelEdit();
+    renderAll();
+  }
+
+  /* ---------------- data export / import ---------------- */
+  function download(filename, text, mime){
+    var blob = new Blob([text], {type: mime});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function csvCell(v){
+    var s = String(v == null ? '' : v);
+    return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function exportCsv(){
+    if(!state.records.length){ toast('还没有可导出的账目'); return; }
+    var rows = [['日期', '类型', '分类', '金额', '支付方式', '备注']];
+    state.records.slice().sort(function(a, b){
+      return a.date.localeCompare(b.date) || a.ts - b.ts;
+    }).forEach(function(r){
+      rows.push([r.date, r.type === 'expense' ? '支出' : '收入', r.category, r.amount.toFixed(2), r.method || '', r.note || '']);
+    });
+    var csv = '\ufeff' + rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n');
+    download('记账本-全部账单-' + dateStr(new Date()) + '.csv', csv, 'text/csv;charset=utf-8');
+    toast('已导出 ' + state.records.length + ' 条记录');
+  }
+
+  function backupJson(){
+    var data = {
+      app: 'dsh-ledger',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      budget: state.budget,
+      records: state.records
+    };
+    download('记账本-备份-' + dateStr(new Date()) + '.json', JSON.stringify(data, null, 2), 'application/json');
+    toast('已生成备份文件');
+  }
+
+  function restoreFromFile(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(String(reader.result));
+        var arr = Array.isArray(data) ? data : (data && Array.isArray(data.records) ? data.records : null);
+        if(!arr) throw new Error('missing records');
+        var rawBudget = (!Array.isArray(data) && data.budget != null) ? data.budget : state.budget;
+        var normalized = normalizeState({records: arr, budget: rawBudget, theme: state.theme});
+        if(!normalized.records.length){ toast('备份里没有可用的记录'); return; }
+        if(!window.confirm('将导入 ' + normalized.records.length + ' 条记录，并替换当前全部数据，确定吗？')) return;
+        state = normalized;
+        saveState();
+        view.month = currentMonth();
+        view.dayFilter = null;
+        view.filter = 'all';
+        finishEdit();
+        renderAll();
+        toast('已恢复 ' + normalized.records.length + ' 条记录');
+      }catch(e){
+        toast('导入失败：文件格式不正确');
+      }
+      $('restoreFile').value = '';
+    };
+    reader.onerror = function(){
+      toast('读取文件失败');
+      $('restoreFile').value = '';
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  function clearAll(){
+    if(!state.records.length){ toast('现在没有账目'); return; }
+    if(!window.confirm('确定清空全部 ' + state.records.length + ' 条记录吗？此操作不可恢复，建议先备份。')) return;
+    state.records = [];
+    view.dayFilter = null;
+    finishEdit();
+    saveState();
+    renderAll();
+    toast('已清空账目');
+  }
+
+  /* ---------------- events ---------------- */
+  $('prevMonth').addEventListener('click', function(){ shiftView(-1); });
+  $('nextMonth').addEventListener('click', function(){ shiftView(1); });
+  $('backToday').addEventListener('click', function(){
+    view.month = currentMonth();
+    view.dayFilter = null;
+    if(form.editingId) cancelEdit();
+    renderAll();
+  });
+  $('themeBtn').addEventListener('click', function(){
+    var dark = !document.documentElement.classList.contains('dark');
+    state.theme = dark ? 'dark' : 'light';
+    applyTheme();
+    persistLocal();
+  });
+  $('exitDemo').addEventListener('click', function(){
+    var href = location.href.split('#')[0];
+    location.replace(href);
+  });
+
+  $('typeSeg').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-type]');
+    if(!btn) return;
+    form.type = btn.dataset.type;
+    form.category = catMemory[form.type] || catsFor(form.type)[0].name;
+    renderType();
+  });
+
+  $('catList').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-cat]');
+    if(!btn) return;
+    form.category = btn.dataset.cat;
+    catMemory[form.type] = form.category;
+    renderCats();
+  });
+
+  $('quickDates').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-offset]');
+    if(!btn) return;
+    var d = new Date();
+    d.setDate(d.getDate() - Number(btn.dataset.offset));
+    $('date').value = dateStr(d);
+    renderQuickDates();
+  });
+
+  $('date').addEventListener('change', renderQuickDates);
+
+  $('amount').addEventListener('input', function(){
+    var v = this.value.replace(/[^\d.]/g, '');
+    var dot = v.indexOf('.');
+    if(dot !== -1){
+      v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '');
+    }
+    var parts = v.split('.');
+    if(parts[1] && parts[1].length > 2) v = parts[0] + '.' + parts[1].slice(0, 2);
+    if(parts[0].length > 6) v = parts[0].slice(0, 6) + (parts[1] !== undefined ? '.' + parts[1] : '');
+    if(v !== this.value) this.value = v;
+  });
+
+  $('entry').addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    if(e.target === $('amount') || e.target === $('note')){
+      e.preventDefault();
+      saveEntry();
+    }
+  });
+
+  $('saveBtn').addEventListener('click', saveEntry);
+  $('cancelEdit').addEventListener('click', cancelEdit);
+
+  $('filterSeg').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-filter]');
+    if(!btn) return;
+    view.filter = btn.dataset.filter;
+    renderList();
+  });
+
+  $('list').addEventListener('click', function(e){
+    var del = e.target.closest('.rec-del');
+    if(del){
+      e.stopPropagation();
+      deleteRecord(del.dataset.id);
+      return;
+    }
+    var row = e.target.closest('.rec-row');
+    if(row) startEdit(row.dataset.id);
+  });
+
+  $('calendar').addEventListener('click', function(e){
+    var cell = e.target.closest('button.cal-cell[data-date]');
+    if(!cell || cell.disabled) return;
+    view.dayFilter = cell.dataset.date;
+    view.filter = 'all';
+    renderAll();
+    setTimeout(function(){
+      document.querySelector('.records').scrollIntoView({behavior: 'smooth', block: 'start'});
+    }, 30);
+  });
+
+  $('clearDayFilter').addEventListener('click', function(){
+    view.dayFilter = null;
+    renderAll();
+  });
+
+  $('budgetBody').addEventListener('change', function(e){
+    if(e.target.id !== 'budgetInput') return;
+    var v = parseAmount(e.target.value);
+    if(e.target.value.trim() !== '' && !(v > 0)){ toast('预算金额不太对'); renderBudget(); return; }
+    if(v > 1000000){ toast('预算金额太大了'); renderBudget(); return; }
+    state.budget = e.target.value.trim() === '' ? 0 : v;
+    saveState();
+    renderAll();
+    toast(state.budget ? '月预算已更新为 ¥' + money(state.budget) : '已关闭月预算');
+  });
+  $('budgetBody').addEventListener('keydown', function(e){
+    if(e.target.id === 'budgetInput' && e.key === 'Enter') e.target.blur();
+  });
+
+  $('exportCsv').addEventListener('click', exportCsv);
+  $('backupJson').addEventListener('click', backupJson);
+  $('restoreBtn').addEventListener('click', function(){ $('restoreFile').click(); });
+  $('restoreFile').addEventListener('change', function(e){
+    if(e.target.files && e.target.files[0]) restoreFromFile(e.target.files[0]);
+  });
+  $('clearBtn').addEventListener('click', clearAll);
+
+  $('ghConnect').addEventListener('click', function(){
+    var value = $('ghRepo').value.trim();
+    var m = value.match(/^([A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)\/([A-Za-z0-9_.-]+)$/);
+    if(!m){
+      setCloudStatus('请填写 用户名/仓库名', 'bad');
+      return;
+    }
+    var token = $('ghToken').value.trim() || gh.token;
+    if(!token){
+      setCloudStatus('请填写访问令牌', 'bad');
+      return;
+    }
+    gh.owner = m[1];
+    gh.repo = m[2];
+    gh.token = token;
+    gh.path = 'ledger.json';
+    gh.sha = null;
+    saveGhConfig();
+    $('ghToken').value = '';
+    renderCloudUI();
+    setCloudStatus('连接中…');
+    syncCloudOnce({notify: true});
+  });
+
+  $('ghSync').addEventListener('click', function(){
+    syncCloudOnce({notify: true});
+  });
+
+  $('ghDisconnect').addEventListener('click', function(){
+    if(!confirm('断开云端同步？本机数据会保留，但不再自动上传。')) return;
+    gh = {owner: '', repo: '', token: '', path: 'ledger.json', sha: null};
+    try{ localStorage.removeItem(GH_KEY); }catch(e){}
+    $('ghRepo').value = '';
+    $('ghToken').value = '';
+    renderCloudUI();
+    toast('已断开云端同步');
+  });
+
+  window.addEventListener('online', function(){
+    if(hasGh()) syncCloudOnce({silent: true});
+  });
+  window.addEventListener('offline', function(){
+    if(hasGh()) setCloudStatus('离线 · 数据先存本机');
+  });
+
+  $('toastAction').addEventListener('click', function(){
+    var fn = toastAction;
+    toastAction = null;
+    $('toast').classList.remove('show');
+    if(fn) fn();
+  });
+
+  if(window.matchMedia){
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onChange = function(){ if(state.theme === 'auto') applyTheme(); };
+    if(mq.addEventListener) mq.addEventListener('change', onChange);
+    else if(mq.addListener) mq.addListener(onChange);
+  }
+
+  window.addEventListener('storage', function(e){
+    if(DEMO || e.key !== LS_KEY || !e.newValue) return;
+    try{
+      state = normalizeState(JSON.parse(e.newValue));
+      applyTheme();
+      renderAll();
+    }catch(err){ /* 另一个标签页写入的数据无法解析时忽略 */ }
+  });
+
+  /* ---------------- init ---------------- */
+  applyTheme();
+  $('date').value = dateStr(new Date());
+  loadGhConfig();
+  if(DEMO){
+    $('demoBanner').classList.remove('hidden');
+    $('dataCard').classList.add('hidden');
+    $('cloudCard').classList.add('hidden');
+  }
+  renderType();
+  renderAll();
+  renderCloudUI();
+  if(hasGh() && !DEMO){
+    setTimeout(function(){ syncCloudOnce({silent: true}); }, 50);
+  }
+  if(navigator.storage && navigator.storage.persist){
+    try{ Promise.resolve(navigator.storage.persist()).catch(function(){}); }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
