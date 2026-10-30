@@ -204,6 +204,28 @@
   .quick-dates button{padding:4px 9px;border-radius:7px;font-size:11.5px;color:var(--muted);border:1px solid transparent}
   .quick-dates button:hover{background:var(--surface-2)}
   .quick-dates button.qd-active{color:var(--accent-strong);background:var(--accent-soft);font-weight:600}
+  .smart-row{
+    display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:4px 4px 4px 11px;
+    border:1px dashed var(--border);border-radius:11px;background:var(--surface-2);
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .smart-row:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .smart-input{
+    flex:1;min-width:0;border:0;outline:none;background:transparent;padding:6px 0;
+    font-size:12.5px;color:var(--ink);
+  }
+  .smart-input::placeholder{color:var(--muted)}
+  .smart-btn{
+    flex:none;padding:7px 11px;border-radius:8px;background:var(--accent);color:var(--on-accent);
+    font-size:12px;font-weight:650;white-space:nowrap;transition:background .15s,transform .1s;
+  }
+  .smart-btn:hover{background:var(--accent-strong)}
+  .smart-btn:active{transform:scale(.97)}
+  .batch-link{
+    display:inline-flex;align-items:center;gap:4px;margin:-6px 0 10px;padding:3px 2px;
+    border-radius:6px;font-size:12px;color:var(--accent-strong);font-weight:600;
+  }
+  .batch-link:hover{color:var(--accent)}
   .primary-btn{
     width:100%;height:46px;border-radius:11px;background:var(--accent);color:var(--on-accent);
     font-size:14.5px;font-weight:650;letter-spacing:.01em;
@@ -381,6 +403,68 @@
   .cloud-help{font-size:11.5px;color:var(--muted);line-height:1.65;margin-top:11px}
   .cloud-help code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;background:var(--surface-2);padding:1px 4px;border-radius:4px}
 
+  /* ---------- batch entry ---------- */
+  .modal{
+    position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
+    padding:18px;background:rgba(18,16,12,.5);backdrop-filter:blur(2px);
+  }
+  .modal-card{
+    width:min(660px,100%);max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);
+    overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    box-shadow:0 30px 80px rgba(0,0,0,.32);padding:20px;
+  }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+  .modal-head h2{font-size:17px;font-weight:650}
+  .modal-close{
+    width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+    font-size:19px;line-height:1;color:var(--muted);
+  }
+  .modal-close:hover{background:var(--surface-2);color:var(--ink)}
+  .modal-sub{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 12px}
+  .batch-input{
+    width:100%;min-height:126px;resize:vertical;border:1px solid var(--border);border-radius:11px;
+    background:var(--surface-2);padding:10px 12px;font:inherit;font-size:13px;line-height:1.6;
+    color:var(--ink);outline:none;
+  }
+  .batch-input::placeholder{color:var(--muted)}
+  .batch-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .batch-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+  .batch-hint{font-size:11.5px;color:var(--muted);line-height:1.5}
+  .batch-btn{
+    flex:none;padding:9px 15px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface-2);font-size:12.5px;font-weight:600;color:var(--ink-2);
+    transition:border-color .15s,background .15s,color .15s,opacity .15s;
+  }
+  .batch-btn:hover{border-color:var(--muted);color:var(--ink)}
+  .batch-btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+  .batch-btn.primary:hover{background:var(--accent-strong)}
+  .batch-btn:disabled{opacity:.45;cursor:not-allowed}
+  .batch-errors{
+    margin-top:10px;padding:9px 11px;border:1px solid var(--border);border-left:3px solid var(--danger);
+    border-radius:9px;background:var(--surface-2);color:var(--danger);font-size:12px;line-height:1.7;
+  }
+  .batch-preview{margin-top:14px}
+  .batch-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:8px}
+  .batch-summary b{color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+  .batch-list{border:1px solid var(--border);border-radius:11px;overflow:hidden}
+  .batch-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border)}
+  .batch-item:last-child{border-bottom:0}
+  .batch-date{width:48px;flex:none;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .batch-main{flex:1;min-width:0;display:flex;align-items:center;gap:6px;overflow:hidden}
+  .batch-cat{font-size:12.5px;font-weight:600;white-space:nowrap}
+  .batch-note{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .batch-dup{
+    flex:none;font-size:9.5px;line-height:1.5;color:var(--warn);border:1px solid currentColor;
+    border-radius:4px;padding:0 3px;white-space:nowrap;
+  }
+  .batch-amt{flex:none;font-size:12.5px;font-weight:650;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .batch-del{
+    width:26px;height:26px;flex:none;border-radius:7px;color:var(--muted);
+    display:grid;place-items:center;font-size:16px;line-height:1;
+  }
+  .batch-del:hover{background:var(--surface-2);color:var(--danger)}
+  .batch-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
   /* ---------- toast ---------- */
   .toast{
     position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom, 0px));z-index:50;
@@ -403,6 +487,8 @@
     .stat{padding:12px 13px}
     .stat-value{font-size:19px}
     .entry{padding:16px}
+    .smart-input{font-size:16px}
+    .smart-btn{padding:8px 10px}
     .amount-row input{font-size:36px}
     .field input,.field select{font-size:16px}
     .budget-input input{font-size:16px}
@@ -417,6 +503,15 @@
     .data-card{padding:0 16px}
     .cloud-card{padding:16px}
     .cloud-form{grid-template-columns:1fr}
+    .modal{align-items:flex-end;padding:10px}
+    .modal-card{padding:16px;border-radius:16px;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px)}
+    .batch-input{font-size:16px;min-height:120px}
+    .batch-actions{flex-direction:column;align-items:stretch;gap:8px}
+    .batch-actions .batch-btn{width:100%}
+    .batch-item{padding:7px 8px;gap:6px}
+    .batch-date{width:42px;font-size:10.5px}
+    .batch-main{gap:5px}
+    .batch-foot .batch-btn{flex:1}
   }
   @media (hover:none){
     .rec-del{width:34px;height:34px;opacity:.55}
@@ -474,6 +569,12 @@
       </div>
       <span class="entry-state" id="entryState"></span>
     </div>
+
+    <div class="smart-row">
+      <input id="smartText" class="smart-input" type="text" maxlength="200" autocomplete="off" placeholder="粘贴：15.5, 餐饮, 午饭" aria-label="智能粘贴，格式为金额、分类、备注">
+      <button class="smart-btn" id="smartBtn" type="button">智能识别</button>
+    </div>
+    <button class="batch-link" id="batchBtn" type="button">批量补记多笔 →</button>
 
     <div class="amount-row">
       <span class="cny" aria-hidden="true">¥</span>
@@ -573,6 +674,30 @@
   <p class="footnote">未开启云同步时，数据保存在此浏览器 · 换设备或清理浏览器前，先备份 JSON 或开启云同步</p>
 </div>
 
+<div class="modal hidden" id="batchModal" role="dialog" aria-modal="true" aria-labelledby="batchTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="batchTitle">批量补记</h2>
+      <button class="modal-close" id="batchClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <p class="modal-sub" id="batchSub"></p>
+    <textarea id="batchText" class="batch-input" rows="6" spellcheck="false" placeholder="昨天, 15.5, 餐饮, 午饭&#10;前天, 2, 交通, 公交&#10;10-26, 36, 学习, 教材&#10;15.5, 餐饮, 午饭"></textarea>
+    <div class="batch-actions">
+      <span class="batch-hint" id="batchHint"></span>
+      <button class="batch-btn primary" id="batchParse" type="button">解析并预览</button>
+    </div>
+    <div class="batch-errors hidden" id="batchErrors"></div>
+    <div class="batch-preview hidden" id="batchPreview">
+      <div class="batch-summary" id="batchSummary"></div>
+      <div class="batch-list" id="batchList"></div>
+      <div class="batch-foot">
+        <button class="batch-btn" id="batchCancel" type="button">取消</button>
+        <button class="batch-btn primary" id="batchSave" type="button">全部记下</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite">
   <span id="toastMsg"></span>
   <button type="button" id="toastAction" class="hidden">撤销</button>
@@ -616,6 +741,20 @@
   var CAT_MAP = new Map();
   EXPENSE_CATS.forEach(function(c){ CAT_MAP.set('expense:' + c.name, c); });
   INCOME_CATS.forEach(function(c){ CAT_MAP.set('income:' + c.name, c); });
+
+  var CAT_ALIASES = {
+    '吃饭':'餐饮','饭':'餐饮','午饭':'餐饮','午餐':'餐饮','晚饭':'餐饮','晚餐':'餐饮',
+    '早餐':'餐饮','夜宵':'餐饮','食堂':'餐饮','外卖':'餐饮',
+    '奶茶':'零食饮品','咖啡':'零食饮品','零食':'零食饮品','饮料':'零食饮品','水果':'零食饮品',
+    '公交':'交通','地铁':'交通','打车':'交通','滴滴':'交通','火车':'交通','高铁':'交通','机票':'交通',
+    '书':'学习','书籍':'学习','课程':'学习','打印':'学习','资料':'学习','学费':'学习',
+    '电影':'娱乐','游戏':'娱乐','会员':'娱乐','唱歌':'娱乐',
+    '淘宝':'购物','衣服':'购物','日用品':'购物','超市':'购物',
+    '房租':'住宿','酒店':'住宿','宿舍':'住宿',
+    '药':'医疗','买药':'医疗','医院':'医疗','看病':'医疗',
+    '话费':'通讯','流量':'通讯','网费':'通讯',
+    '生活费':'生活费','奖学金':'奖学金','兼职':'兼职','红包':'红包','退款':'退款'
+  };
 
   var TRASH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>';
   var MOON = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
@@ -799,6 +938,7 @@
 
   var view = {month: currentMonth(), filter: 'all', dayFilter: null};
   var form = {type: 'expense', category: '餐饮', editingId: null};
+  var batch = {rows: [], open: false};
   var catMemory = {expense: '餐饮', income: '生活费'};
   var storageWarned = false;
   var toastTimer = null;
@@ -1411,6 +1551,239 @@
     el.focus();
   }
 
+  function parseSmartAmount(raw){
+    var s = String(raw || '').trim()
+      .replace(/[０-９]/g, function(ch){ return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0); })
+      .replace(/．/g, '.')
+      .replace(/[¥￥元\s]/g, '');
+    if(!/^\d+(\.\d{1,2})?$/.test(s)) return 0;
+    var n = Number(s);
+    if(!isFinite(n) || n <= 0 || n > 1000000) return 0;
+    return Math.round(n * 100) / 100;
+  }
+
+  function parseSmartCategory(raw){
+    var token = String(raw || '').trim();
+    if(!token) return '';
+    var list = catsFor(form.type);
+    var exact = list.find(function(c){ return c.name === token; });
+    if(exact) return exact.name;
+    var alias = CAT_ALIASES[token];
+    if(alias && list.some(function(c){ return c.name === alias; })) return alias;
+    var loose = list.find(function(c){
+      return token.indexOf(c.name) !== -1 || c.name.indexOf(token) !== -1;
+    });
+    return loose ? loose.name : '';
+  }
+
+  function parseSmartInput(){
+    var raw = $('smartText').value.trim();
+    var parts = raw.split(/[,，]/).map(function(s){ return s.trim(); });
+    var amount = parseSmartAmount(parts[0]);
+    var category = parts.length >= 2 ? parseSmartCategory(parts[1]) : '';
+    var note = parts.length >= 3 ? parts.slice(2).join('，').trim() : '';
+
+    if(!raw || parts.length < 2 || !(amount > 0) || !category){
+      alert('请按金额,分类,备注的格式粘贴');
+      $('smartText').focus();
+      $('smartText').select();
+      return;
+    }
+
+    $('amount').value = String(amount);
+    $('note').value = note.slice(0, 60);
+    form.category = category;
+    catMemory[form.type] = category;
+    renderCats();
+    $('smartText').value = '';
+    toast('已识别：' + category + ' ¥' + money(amount) + '，请确认后记账');
+  }
+
+  /* ---------------- batch entry ---------------- */
+  function batchDateFromToken(token){
+    var t = String(token || '').trim();
+    var now = new Date();
+    if(t === '今天' || t === '今日') return dateStr(now);
+    if(t === '昨天' || t === '昨日'){
+      var y = new Date(now); y.setDate(y.getDate() - 1); return dateStr(y);
+    }
+    if(t === '前天'){
+      var p = new Date(now); p.setDate(p.getDate() - 2); return dateStr(p);
+    }
+    var m = t.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    var year, month, day;
+    if(m){
+      year = Number(m[1]); month = Number(m[2]); day = Number(m[3]);
+    }else{
+      m = t.match(/^(\d{1,2})[-/](\d{1,2})$/);
+      if(!m) return '';
+      year = now.getFullYear(); month = Number(m[1]); day = Number(m[2]);
+    }
+    var d = new Date(year, month - 1, day);
+    if(d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) return '';
+    return dateStr(d);
+  }
+
+  function isBatchDateToken(token){
+    var t = String(token || '').trim();
+    return /^(今天|今日|昨天|昨日|前天)$/.test(t)
+      || /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(t)
+      || /^\d{1,2}[-/]\d{1,2}$/.test(t);
+  }
+
+  function parseBatchLines(raw){
+    var defaultDate = $('date').value;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(defaultDate)) defaultDate = dateStr(new Date());
+    var lines = String(raw || '').split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+    var rows = [], errors = [];
+    if(!lines.length) return {rows: [], errors: [{line: 0, msg: '先粘贴几行内容'}]};
+    if(lines.length > 100) return {rows: [], errors: [{line: 0, msg: '一次最多 100 行，可以分两次粘'}]};
+
+    lines.forEach(function(line, idx){
+      var clean = line.replace(/^[-*•]\s+/, '');
+      var parts = clean.split(/\t|[,，;；]/).map(function(s){ return s.trim(); });
+      var date = defaultDate;
+      if(isBatchDateToken(parts[0])){
+        var parsedDate = batchDateFromToken(parts[0]);
+        if(!parsedDate){ errors.push({line: idx + 1, msg: '日期不正确'}); return; }
+        date = parsedDate;
+        parts.shift();
+      }
+      if(parts.length < 2){ errors.push({line: idx + 1, msg: '至少要有金额和分类'}); return; }
+      var amount = parseSmartAmount(parts[0]);
+      if(!(amount > 0)){ errors.push({line: idx + 1, msg: '金额格式不对'}); return; }
+      var category = parseSmartCategory(parts[1]);
+      if(!category){ errors.push({line: idx + 1, msg: '分类没认出来：' + parts[1]}); return; }
+      var note = parts.slice(2).join('，').trim().replace(/[，,;；\s]+$/, '').slice(0, 60);
+      rows.push({type: form.type, date: date, amount: amount, category: category, note: note});
+    });
+    return {rows: rows, errors: errors};
+  }
+
+  function sameBatchRecord(a, b){
+    return a.type === b.type && a.date === b.date && a.category === b.category
+      && Math.abs(Number(a.amount) - Number(b.amount)) < 0.005
+      && String(a.note || '') === String(b.note || '');
+  }
+
+  function isDuplicateBatch(row, index){
+    var hit = state.records.some(function(r){ return sameBatchRecord(r, row); });
+    if(hit) return true;
+    return batch.rows.some(function(r, i){ return i !== index && sameBatchRecord(r, row); });
+  }
+
+  function showBatchErrors(errors){
+    var box = $('batchErrors');
+    if(!errors || !errors.length){
+      box.classList.add('hidden');
+      box.innerHTML = '';
+      return;
+    }
+    box.classList.remove('hidden');
+    box.innerHTML = errors.slice(0, 6).map(function(e){
+      return '<div>' + (e.line ? '第 ' + e.line + ' 行：' : '') + esc(e.msg) + '</div>';
+    }).join('') + (errors.length > 6 ? '<div>还有 ' + (errors.length - 6) + ' 处错误…</div>' : '');
+  }
+
+  function renderBatchPreview(){
+    var preview = $('batchPreview');
+    if(!batch.rows.length){
+      preview.classList.add('hidden');
+      $('batchSummary').innerHTML = '';
+      return;
+    }
+    preview.classList.remove('hidden');
+    var total = sum(batch.rows);
+    $('batchSummary').innerHTML = '<span>共 <b>' + batch.rows.length + '</b> 笔</span>'
+      + '<span>合计 <b>¥' + money(total) + '</b></span>';
+    $('batchList').innerHTML = batch.rows.map(function(r, i){
+      var dup = isDuplicateBatch(r, i);
+      return '<div class="batch-item">'
+        + '<span class="batch-date">' + esc(r.date.slice(5)) + '</span>'
+        + '<span class="batch-main">'
+        +   '<b class="batch-cat">' + esc(r.category) + '</b>'
+        +   (r.note ? '<span class="batch-note">' + esc(r.note) + '</span>' : '')
+        +   (dup ? '<span class="batch-dup">可能重复</span>' : '')
+        + '</span>'
+        + '<span class="batch-amt">¥' + money(r.amount) + '</span>'
+        + '<button type="button" class="batch-del" data-i="' + i + '" aria-label="移除这一笔">×</button>'
+        + '</div>';
+    }).join('');
+    $('batchSave').disabled = false;
+    $('batchSave').textContent = '全部记下 (' + batch.rows.length + ')';
+  }
+
+  function openBatch(){
+    if(batch.open) return;
+    if(form.editingId) cancelEdit();
+    batch.rows = [];
+    batch.open = true;
+    $('batchText').value = '';
+    showBatchErrors([]);
+    $('batchPreview').classList.add('hidden');
+    var fallbackDate = /^\d{4}-\d{2}-\d{2}$/.test($('date').value) ? $('date').value : dateStr(new Date());
+    $('batchSub').innerHTML = '当前类型：<b>' + (form.type === 'expense' ? '支出' : '收入')
+      + '</b>。每行一笔：<b>日期（可省）, 金额, 分类, 备注</b>。';
+    $('batchHint').textContent = '不写日期就用 ' + fallbackDate + '；也支持 10-26、昨天、前天';
+    $('batchModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ $('batchText').focus(); }, 30);
+  }
+
+  function closeBatch(){
+    if(!batch.open) return;
+    batch.open = false;
+    batch.rows = [];
+    $('batchModal').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function parseBatch(){
+    var result = parseBatchLines($('batchText').value);
+    batch.rows = result.rows;
+    showBatchErrors(result.errors);
+    if(result.errors.length){
+      $('batchPreview').classList.add('hidden');
+      return;
+    }
+    renderBatchPreview();
+  }
+
+  function saveBatch(){
+    if(!batch.rows.length) return;
+    var saved = batch.rows.slice();
+    var method = $('method').value || '微信支付';
+    var now = Date.now();
+    var ids = [];
+    saved.forEach(function(r, i){
+      var rec = {
+        id: uid(),
+        type: r.type,
+        category: r.category,
+        amount: r.amount,
+        note: r.note,
+        method: method,
+        date: r.date,
+        ts: now + i
+      };
+      ids.push(rec.id);
+      state.records.push(rec);
+    });
+    var cur = currentMonth();
+    view.month = saved.some(function(r){ return monthOf(r.date) === cur; }) ? cur : monthOf(saved[0].date);
+    view.dayFilter = null;
+    view.filter = 'all';
+    saveState();
+    closeBatch();
+    renderAll();
+    toast('已补记 ' + saved.length + ' 笔', '撤销', function(){
+      state.records = state.records.filter(function(r){ return ids.indexOf(r.id) === -1; });
+      saveState();
+      renderAll();
+      toast('已撤销');
+    });
+  }
+
   function saveEntry(){
     var amount = parseAmount($('amount').value);
     if(!(amount > 0)){ invalidAmount('请输入有效金额'); return; }
@@ -1676,6 +2049,49 @@
 
   $('saveBtn').addEventListener('click', saveEntry);
   $('cancelEdit').addEventListener('click', cancelEdit);
+  $('smartBtn').addEventListener('click', parseSmartInput);
+  $('smartText').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      parseSmartInput();
+    }
+  });
+
+  $('batchBtn').addEventListener('click', openBatch);
+  $('batchClose').addEventListener('click', closeBatch);
+  $('batchCancel').addEventListener('click', closeBatch);
+  $('batchParse').addEventListener('click', parseBatch);
+  $('batchSave').addEventListener('click', saveBatch);
+  $('batchText').addEventListener('input', function(){
+    showBatchErrors([]);
+    if(batch.rows.length){
+      batch.rows = [];
+      $('batchPreview').classList.add('hidden');
+    }
+  });
+  $('batchText').addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      e.preventDefault();
+      parseBatch();
+    }
+  });
+  $('batchList').addEventListener('click', function(e){
+    var btn = e.target.closest('.batch-del');
+    if(!btn) return;
+    batch.rows.splice(Number(btn.dataset.i), 1);
+    if(!batch.rows.length){
+      $('batchPreview').classList.add('hidden');
+      $('batchSummary').innerHTML = '';
+      return;
+    }
+    renderBatchPreview();
+  });
+  $('batchModal').addEventListener('click', function(e){
+    if(e.target === this) closeBatch();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && batch.open) closeBatch();
+  });
 
   $('filterSeg').addEventListener('click', function(e){
     var btn = e.target.closest('button[data-filter]');
